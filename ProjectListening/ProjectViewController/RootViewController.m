@@ -26,6 +26,7 @@
 #import "StudyViewController.h"
 #import "InStoreViewController.h"
 #import "UserAdviseViewController.h"
+#import "SelectionViewController.h"
 
 @interface RootViewController ()<UITableViewDataSource, UITableViewDelegate> {
 //    NSMutableArray *_dataList;
@@ -271,6 +272,11 @@ static RootViewController *instanceOfRootViewController;
 
 
 #pragma mark - My Method
+- (void)pushSelectionViewController {
+    SelectionViewController *svc = [[[SelectionViewController alloc] initWithNibName:@"SelectionViewController" bundle:nil] autorelease];
+    [svc setHidesBottomBarWhenPushed:YES];
+    [self.navigationController pushViewController:svc animated:YES];
+}
 - (void)pushStudyViewControllerBySection:(NSInteger)section index:(NSInteger)row isContinue:(BOOL)isContinue {
 //    NSMutableDictionary *dic = [_dataList objectAtIndex:section];
 //    NSMutableArray *list = [dic objectForKey:@"details"];
@@ -784,7 +790,7 @@ static RootViewController *instanceOfRootViewController;
         }
         
     } else {
-        [self pushStudyViewControllerBySection:indexPath.section index:indexPath.row isContinue:NO];
+        [self pushSelectionViewController];
         
     }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];

@@ -7,18 +7,32 @@
 //
 
 #import "SelectionViewController.h"
+#include <sqlite3.h>
+#import "QuesTextCell.h"
+#import "AnswerTextCell.h"
 
-@interface SelectionViewController ()
+@interface SelectionViewController () {
+    sqlite3 *_database;
+}
+@property (nonatomic, retain)NSMutableArray *titleNumArray;
+@property (nonatomic, retain)NSMutableArray *SICArray;
+@property int currIndex;
 
 @end
 
 @implementation SelectionViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil titleNumArray:(NSMutableArray *)titleNumArray
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        
+        self.titleNumArray = titleNumArray;
+        
+        self.SICArray = [[NSMutableArray alloc] init];
+        [self setSICs];
+        self.currIndex = 0;
     }
     return self;
 }
@@ -36,6 +50,7 @@
 }
 
 - (void)dealloc {
+    [self.SICArray release];
     [_mainTableView release];
     [_prevBtn release];
     [_nextBtn release];
@@ -53,6 +68,117 @@
     [self setLikeBtn:nil];
     [super viewDidUnload];
 }
+
+- (void)setSICs {
+    NSString *sql = @"SELECT StyleName, PackName, TitleName, QuesText, QuesImage, AnswerText, Answer, Handle, Favorite, TitleNum FROM Selection WHERE ";
+    int count = [self.titleNumArray count];
+    for (int i = 0; i < count; i++) {
+        int titleNum = [[self.titleNumArray objectAtIndex:i] intValue];
+        NSString *partSql = @"";
+        if (titleNum != count - 1) {
+            partSql = [partSql stringByAppendingFormat:@"TitleNum = %d OR ", titleNum];
+        } else {
+            partSql = [partSql stringByAppendingFormat:@"TitleNum = %d;", titleNum];
+        }
+        sql = [sql stringByAppendingFormat:@"%@", partSql];
+    }
+    
+    NSString *path = [ZZAcquirePath getSelectionDBFromDocuments];
+    [self openDatabaseIn:path];
+    
+    /*******PackName*************/
+    sqlite3_stmt *stmt;
+    if (sqlite3_prepare_v2(_database, [sql UTF8String], -1, &stmt, nil) != SQLITE_OK) {
+        sqlite3_close(_database);
+        NSAssert(NO, @"查询信息失败");
+    }
+    char *cStyleName = NULL;
+    char *cPackName = NULL;
+    char *cTitleName = NULL;
+    char *cQuesText = NULL;
+    char *cQuesImg = NULL;
+    char *cAnswerText = NULL;
+    char *cAnswer = NULL;
+    NSString *styleName = nil;
+    NSString *packName = nil;
+    NSString *titleName = nil;
+    NSString *quesText = nil;
+    NSString *quesImg = nil;
+    NSString *answerText = nil;
+    NSString *answer = nil;
+    int handle = 0;
+    BOOL isFavorite = NO;
+    int titleNum = 0;
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        cStyleName = (char *)sqlite3_column_text(stmt, 0);
+        if (cStyleName != NULL) {
+            styleName = [NSString stringWithUTF8String:cStyleName];
+        }
+        
+        cPackName = (char *)sqlite3_column_text(stmt, 1);
+        if (cPackName != NULL) {
+            packName = [NSString stringWithUTF8String:cPackName];
+        }
+        
+        cTitleName = (char *)sqlite3_column_text(stmt, 2);
+        if (cTitleName != NULL) {
+            titleName = [NSString stringWithUTF8String:cTitleName];
+        }
+        
+        cQuesText = (char *)sqlite3_column_text(stmt, 3);
+        if (cQuesText != NULL) {
+            quesText = [NSString stringWithUTF8String:cQuesText];
+        }
+        
+        cQuesImg = (char *)sqlite3_column_text(stmt, 4);
+        if (cQuesImg != NULL) {
+            quesImg = [NSString stringWithUTF8String:cQuesImg];
+        }
+        
+        cAnswerText = (char *)sqlite3_column_text(stmt, 5);
+        if (cAnswerText != NULL) {
+            answerText = [NSString stringWithUTF8String:cAnswerText];
+        }
+        
+        cAnswer = (char *)sqlite3_column_text(stmt, 6);
+        if (cAnswer != NULL) {
+            answer = [NSString stringWithUTF8String:cAnswer];
+        }
+        
+        handle = sqlite3_column_int(stmt, 7);
+        
+        int favNum = sqlite3_column_int(stmt, 8);
+        isFavorite = (favNum == 0 ? NO : YES);
+        
+        titleNum = sqlite3_column_int(stmt, 9);
+        
+        
+        SelectionInfoClass *SIC = [SelectionInfoClass selectionWithTestType:0 titleNum:titleNum packName:packName styleName:styleName titleName:titleName quesText:quesText quesImgName:quesImg answerText:answerText answer:answer handle:handle];
+        
+        [self.SICArray addObject:SIC];
+        
+    }
+    sqlite3_finalize(stmt);
+    
+    [self closeDatabase];
+    
+    
+}
+
+- (void)openDatabaseIn:(NSString *)dbPath {
+    if (sqlite3_open([dbPath UTF8String], &_database) != SQLITE_OK) {
+        //        sqlite3_close(database);
+        
+        NSAssert(NO, @"Open database failed");
+    }
+}
+
+- (void)closeDatabase {
+    if (sqlite3_close(_database) != SQLITE_OK) {
+        NSAssert(NO, @"Close database failed");
+    }
+}
+
 - (IBAction)prevBtnPressed:(id)sender {
 }
 
@@ -146,7 +272,11 @@
 
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    
+    if (section == 0) {
+        return 1;
+    } else {
+        return 2;
+    }
 }
 
 - (float)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
@@ -180,18 +310,36 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     int section = [indexPath section];
-    int row = [indexPath row];
+//    int row = [indexPath row];
     
-    static NSString *TextCellIdentifier = @"TextCell";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:TextCellIdentifier];
-    
-    if (!cell) {
-        cell = [[[NSBundle mainBundle] loadNibNamed:TextCellIdentifier owner:self options:nil] objectAtIndex:0];
+    if (section == 0) {
+        static NSString *QuesCellIdentifier = @"QuesTextCell";
+        QuesTextCell *cell = [tableView dequeueReusableCellWithIdentifier:QuesCellIdentifier];
         
+        if (!cell) {
+            cell = [[[NSBundle mainBundle] loadNibNamed:@"QACell" owner:nil options:nil] objectAtIndex:0];
+            
+        }
+        SelectionInfoClass *SIC = [self.SICArray objectAtIndex:self.currIndex];
+        [cell setQuesText:SIC.quesText isBold:YES];
+        
+        
+        return cell;
+
+    } else {
+        static NSString *TextCellIdentifier = @"AnswerTextCell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:TextCellIdentifier];
+        
+        if (!cell) {
+            cell = [[[NSBundle mainBundle] loadNibNamed:@"QACell" owner:nil options:nil] objectAtIndex:0];
+            
+        }
+        
+        
+        return cell;
+
     }
     
-    
-    return cell;
 
 }
 

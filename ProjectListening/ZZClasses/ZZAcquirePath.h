@@ -28,4 +28,6 @@
 
 + (NSString *)getDBZZAIdbFromDocuments;
 
++ (NSString *)getSelectionDBFromDocuments;
+
 @end

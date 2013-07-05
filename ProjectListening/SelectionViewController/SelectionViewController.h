@@ -7,6 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "AnswerInfoClass.h"
+#import "SelectionInfoClass.h"
 
 @interface SelectionViewController : UIViewController <UITableViewDataSource, UITableViewDataSource>
 @property (retain, nonatomic) IBOutlet UITableView *mainTableView;

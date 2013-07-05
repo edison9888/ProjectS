@@ -21,6 +21,16 @@
 @property (nonatomic, retain)NSMutableArray *AICArray;
 @property int handle;
 
+@property (nonatomic, retain)NSArray *answerTextArray;
+@property (nonatomic, retain)NSArray *answerArray;
+@property (nonatomic, retain)NSMutableArray *selectedArray;
+//@property int quesIndex;
+
+
++ (SelectionInfoClass *)selectionWithTestType:(int)testType titleNum:(int)titleNum packName:(NSString *)packName styleName:(NSString *)styleName titleName:(NSString *)titleName quesText:(NSString *)quesText quesImgName:(NSString *)quesImgName answerText:(NSString *)answerText answer:(NSString *)answer handle:(int)handle;
+
+
+
 
 
 @end
