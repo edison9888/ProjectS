@@ -67,7 +67,7 @@
 }
 
 + (NSString *)getSelectionDBFromDocuments {
-    return [ZZAcquirePath getDocDirectoryWithFileName: @"MyData.sqlite3"];
+    return [ZZAcquirePath getBundleDirectoryWithFileName: @"MyData.sqlite3"];
 }
 
 

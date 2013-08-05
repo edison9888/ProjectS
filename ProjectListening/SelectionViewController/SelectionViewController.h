@@ -23,4 +23,6 @@
 - (IBAction)hateBtnPressed:(id)sender;
 - (IBAction)likeBtnPressed:(id)sender;
 
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil titleNumArray:(NSMutableArray *)titleNumArray;
+
 @end

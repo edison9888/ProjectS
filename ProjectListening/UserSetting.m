@@ -63,10 +63,10 @@
 #pragma mark - First Time Run 
 //此版本是否第一次运行
 + (BOOL)isThisVersionFirstTimeRun {
-    BOOL  hasRunBefore = [[NSUserDefaults standardUserDefaults] boolForKey:kApplicationVersion];
+    BOOL  hasRunBefore = [[NSUserDefaults standardUserDefaults] boolForKey:[UserSetting buildVersion]];
     
     if (!hasRunBefore) {
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kApplicationVersion];
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:[UserSetting buildVersion]];
         [[NSUserDefaults standardUserDefaults] synchronize];
         return YES;
     }

@@ -273,7 +273,7 @@ static RootViewController *instanceOfRootViewController;
 
 #pragma mark - My Method
 - (void)pushSelectionViewController {
-    SelectionViewController *svc = [[[SelectionViewController alloc] initWithNibName:@"SelectionViewController" bundle:nil] autorelease];
+    SelectionViewController *svc = [[[SelectionViewController alloc] initWithNibName:@"SelectionViewController" bundle:nil titleNumArray:nil] autorelease];
     [svc setHidesBottomBarWhenPushed:YES];
     [self.navigationController pushViewController:svc animated:YES];
 }

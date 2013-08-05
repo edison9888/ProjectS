@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SelectionInfoClass.h"
 
 typedef enum {
     ModeTagTest,
@@ -16,4 +17,6 @@ typedef enum {
 
 @interface AnswerTextCell : UITableViewCell
 
+- (void)addBtnWithSIC:(SelectionInfoClass *)SIC mode:(ModeTag)modeTag;
+- (void)setCellLayoutWithSIC:(SelectionInfoClass *)SIC mode:(ModeTag)modeTag;
 @end

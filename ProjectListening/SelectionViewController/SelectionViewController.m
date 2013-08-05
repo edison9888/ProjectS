@@ -27,8 +27,9 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        self.titleNumArray = [[NSMutableArray alloc] initWithObjects:[NSNumber numberWithInt:1], [NSNumber numberWithInt:2], nil];
         
-        self.titleNumArray = titleNumArray;
+//        self.titleNumArray = titleNumArray;
         
         self.SICArray = [[NSMutableArray alloc] init];
         [self setSICs];
@@ -75,7 +76,7 @@
     for (int i = 0; i < count; i++) {
         int titleNum = [[self.titleNumArray objectAtIndex:i] intValue];
         NSString *partSql = @"";
-        if (titleNum != count - 1) {
+        if (i != count - 1) {
             partSql = [partSql stringByAppendingFormat:@"TitleNum = %d OR ", titleNum];
         } else {
             partSql = [partSql stringByAppendingFormat:@"TitleNum = %d;", titleNum];
@@ -85,7 +86,7 @@
     
     NSString *path = [ZZAcquirePath getSelectionDBFromDocuments];
     [self openDatabaseIn:path];
-    
+    NSLog(@"%@", sql);
     /*******PackName*************/
     sqlite3_stmt *stmt;
     if (sqlite3_prepare_v2(_database, [sql UTF8String], -1, &stmt, nil) != SQLITE_OK) {
@@ -275,12 +276,12 @@
     if (section == 0) {
         return 1;
     } else {
-        return 2;
+        return 1;
     }
 }
 
 - (float)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
-    return 13;
+    return 0;
 }
 
 - (float)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
@@ -291,8 +292,23 @@
 - (float)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     int row = indexPath.row;
+    int section = indexPath.section;
     
-    return 100;
+    SelectionInfoClass *SIC = [self.SICArray objectAtIndex:self.currIndex];
+    
+    CGFloat height = 0.0f;
+    if (section == 0) {
+//        height = [ZZPublicClass getTVHeightByStr:SIC.quesText];
+        height = [ZZPublicClass getTVHeightByStr:SIC.quesText constraintWidth:320.0f isBold:NO];
+    } else {
+        int count = [SIC.answerTextArray count];
+        for (int i = 0; i < count; i++) {
+            NSString *answer = [SIC.answerTextArray objectAtIndex:i];
+            height += [ZZPublicClass getTVHeightByStr:answer constraintWidth:320.0f isBold:NO];
+        }
+    }
+    
+    return height;
 }
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -312,6 +328,8 @@
     int section = [indexPath section];
 //    int row = [indexPath row];
     
+    SelectionInfoClass *SIC = [self.SICArray objectAtIndex:self.currIndex];
+    
     if (section == 0) {
         static NSString *QuesCellIdentifier = @"QuesTextCell";
         QuesTextCell *cell = [tableView dequeueReusableCellWithIdentifier:QuesCellIdentifier];
@@ -320,20 +338,24 @@
             cell = [[[NSBundle mainBundle] loadNibNamed:@"QACell" owner:nil options:nil] objectAtIndex:0];
             
         }
-        SelectionInfoClass *SIC = [self.SICArray objectAtIndex:self.currIndex];
-        [cell setQuesText:SIC.quesText isBold:YES];
         
+        [cell setQuesText:SIC.quesText isBold:YES];
         
         return cell;
 
     } else {
-        static NSString *TextCellIdentifier = @"AnswerTextCell";
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:TextCellIdentifier];
+        int numOfAnswer = SIC.answerArray.count;
+        NSString *TextCellIdentifier = [NSString stringWithFormat:@"AnswerTextCell%d", numOfAnswer];
+        AnswerTextCell *cell = [tableView dequeueReusableCellWithIdentifier:TextCellIdentifier];
+        
+        
         
         if (!cell) {
-            cell = [[[NSBundle mainBundle] loadNibNamed:@"QACell" owner:nil options:nil] objectAtIndex:0];
-            
+//            cell = [[[NSBundle mainBundle] loadNibNamed:@"QACell" owner:nil options:nil] objectAtIndex:0];
+            cell = [[[AnswerTextCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:TextCellIdentifier] autorelease];
+            [cell addBtnWithSIC:SIC mode:ModeTagTest];
         }
+        [cell setCellLayoutWithSIC:SIC mode:ModeTagTest];
         
         
         return cell;
