@@ -27,4 +27,13 @@
 #define ASSISTANT_LAST_OPEN_DATE @"last_open_date"
 #define ASSISTANT_FIRST_OPEN_DATE @"first_open_date"
 
+
+#define DB_NAME_ASSISTANT @"Assistant.sqlite"
+#define PLIST_NAME_PROGRESS @"Progress.plist"
+#define PLIST_NAME_PRODUCTS @"Products.plist"
+#define PLIST_NAME_USERADVISE @"UserAdvise.plist"
+#define PLIST_NAME_ASSISTANT @"Assistant.plist"
+#define PLIST_NAME_STUDYTIME @"StudyTime.plist"
+
+
 #endif

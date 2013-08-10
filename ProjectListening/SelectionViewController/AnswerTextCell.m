@@ -39,11 +39,12 @@
     for (int i = 0; i < count; i++) {
 //        NSString *answerText = [SIC.answerTextArray objectAtIndex:i];
         UIButton *button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-        button.tag = BUTTON_TAG_PREFIX + count + 1;
-//        [button setTitle:answerText forState:UIControlStateNormal];
+        button.tag = BUTTON_TAG_PREFIX + i + 1;
         [button addTarget:self action:@selector(answerBtnPressed:) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:button];
     }
+
+//颈椎病秘方：葛根 15g 威灵仙
 }
 
 - (void)setCellLayoutWithSIC:(SelectionInfoClass *)SIC mode:(ModeTag)modeTag {
@@ -55,11 +56,12 @@
     for (int i = 0; i < count; i++) {
         NSString *answerText = [SIC.answerTextArray objectAtIndex:i];
         CGFloat height = [ZZPublicClass getTVHeightByStr:answerText constraintWidth:CONSTRAINT_WIDTH isBold:NO];
-        UIButton *button = (UIButton *)[self viewWithTag:BUTTON_TAG_PREFIX + count + 1];
+        UIButton *button = (UIButton *)[self viewWithTag:BUTTON_TAG_PREFIX + i + 1];
         [button setFrame:CGRectMake(0, lastHeight, CONSTRAINT_WIDTH, height)];
+
         [button setTitle:answerText forState:UIControlStateNormal];
         [button.titleLabel setNumberOfLines:0];
-//        [button addTarget:self action:@selector(answerBtnPressed:) forControlEvents:UIControlEventTouchUpInside];
+        [button.titleLabel setLineBreakMode:NSLineBreakByCharWrapping];
         lastHeight += height;
         NSLog(@"******%f:%@", lastHeight, answerText);
     }
