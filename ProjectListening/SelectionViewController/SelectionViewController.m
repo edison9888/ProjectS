@@ -17,12 +17,13 @@
 @property (nonatomic, retain)NSMutableArray *titleNumArray;
 @property (nonatomic, retain)NSMutableArray *SICArray;
 @property int currIndex;
+@property int lastIndex;
 
 @end
 
 @implementation SelectionViewController
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil titleNumArray:(NSMutableArray *)titleNumArray
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil titleNumArray:(NSMutableArray *)titleNumArray currIndex:(int)currIndex
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
@@ -33,7 +34,8 @@
         
         self.SICArray = [[NSMutableArray alloc] init];
         [self setSICs];
-        self.currIndex = 0;
+        self.currIndex = currIndex;
+        self.lastIndex = [self.titleNumArray count] - 1;
     }
     return self;
 }
@@ -68,6 +70,11 @@
     [self setHateBtn:nil];
     [self setLikeBtn:nil];
     [super viewDidUnload];
+}
+
+- (SelectionInfoClass *)getSICByIndex:(int)index {
+    SelectionInfoClass *SIC = [self.SICArray objectAtIndex:index];
+    return SIC;
 }
 
 - (void)setSICs {
@@ -181,9 +188,34 @@
 }
 
 - (IBAction)prevBtnPressed:(id)sender {
+    self.currIndex--;
+    if (self.currIndex == 0) {
+        
+        [self.prevBtn setEnabled:NO];
+    } else {
+        
+    }
+    [self.nextBtn setEnabled:YES];
+    [self.mainTableView reloadData];
 }
 
 - (IBAction)nextBtnPressed:(id)sender {
+    self.currIndex++;
+    if (self.currIndex == self.lastIndex - 1) {
+//        [self.prevBtn setEnabled:YES];
+        [self.nextBtn setTitle:@"交卷" forState:UIControlStateNormal];
+    } else if (self.currIndex == self.lastIndex) {
+        
+         [self.nextBtn setEnabled:NO];
+    } else {
+       
+    }
+    [self.prevBtn setEnabled:YES];
+    [self.mainTableView reloadData];
+}
+
+- (void)changeFromOneSIC:(SelectionInfoClass *)oneSIC toTwoSIC:(SelectionInfoClass *)twoSIC {
+    
 }
 
 - (IBAction)favBtnPressed:(id)sender {

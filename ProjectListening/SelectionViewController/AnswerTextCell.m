@@ -61,7 +61,7 @@
 
         [button setTitle:answerText forState:UIControlStateNormal];
         [button.titleLabel setNumberOfLines:0];
-        [button.titleLabel setLineBreakMode:NSLineBreakByCharWrapping];
+        [button.titleLabel setLineBreakMode:NSLineBreakByWordWrapping];
         lastHeight += height;
         NSLog(@"******%f:%@", lastHeight, answerText);
     }
